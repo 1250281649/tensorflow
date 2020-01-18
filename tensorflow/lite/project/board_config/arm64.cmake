@@ -3,9 +3,9 @@
 set(BOARD_TARGET ARM64)
 
 set(CMAKE_SYSTEM_NAME Linux)
-set(TOOLCHAIN_DIR "/usr/local/arm")
-set(CMAKE_CXX_COMPILER /usr/local/arm/bin/aarch64-linux-gnu-g++)
-set(CMAKE_C_COMPILER /usr/local/arm/bin/aarch64-linux-gnu-gcc)
+set(TOOLCHAIN_DIR "/usr/local/arm/aarch64-linux-gnu-5.4")
+set(CMAKE_CXX_COMPILER /usr/local/arm/aarch64-linux-gnu-5.4/bin/aarch64-linux-gnu-g++)
+set(CMAKE_C_COMPILER /usr/local/arm/aarch64-linux-gnu-5.4/bin/aarch64-linux-gnu-gcc)
 set(GNU_FLAGS "-fPIC -pthread")
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -20,3 +20,5 @@ set(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_DIR}
     )
 
 include_directories(${TOOLCHAIN_DIR}/include)
+
+set(BUILD_GPU_DELEGATE  off)

@@ -7,5 +7,9 @@ CC=aarch64-linux-gnu-gcc
 build_dir=../../out/build_arm64
 mkdir -p ${build_dir}
 cd ${build_dir}
-cmake ../../ -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
-make -j4
+cmake ../../ \
+    -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+    -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+    -DCMAKE_CXX_STANDARD=11 \
+    -DBOARD_TARGET=ARM64
+make -j3

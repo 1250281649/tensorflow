@@ -3,6 +3,7 @@ project(tensorflow-lite)
 set(LITE_DIR ${PROJECT_SOURCE_DIR})
 
 option(BOARD_TARGET "Select board type" Linux_x64)
+option(BUILD_GPU_DELEGATE "default" off)
 
 if (${BOARD_TARGET}  STREQUAL "ARM64")
     message("-- use aarch64 compile")
@@ -27,9 +28,6 @@ include_directories(
 )
 
 #===========================source files
-# A small example program that shows how to link against the library.
-set(MINIMAL_SRCS ${LITE_DIR}/examples/minimal/minimal.cc)
-
 #find sources
 file(GLOB CORE_CC_ALL_SRCS
     ${LITE_DIR}/*.cc
@@ -66,6 +64,40 @@ set(SRC_LIST ${CORE_CC_ALL_SRCS})
 
 add_library(${PROJECT_NAME} ${SRC_LIST})
 target_link_libraries(${PROJECT_NAME} absl::flags absl::hash absl::strings)
+
+# =========================== gpu delegate ===============================
+if(${BUILD_GPU_DELEGATE} STREQUAL "on")
+#find sources
+file(GLOB GPU_SRCS
+    ${LITE_DIR}/minimal_logging.cc
+    ${LITE_DIR}/c/common.cc
+
+    ${LITE_DIR}/*.c
+
+    ${LITE_DIR}/delegates/gpu/delegate.cc
+    ${LITE_DIR}/delegates/gpu/api.cc
+    ${LITE_DIR}/delegates/gpu/cl/api.cc
+    ${LITE_DIR}/delegates/gpu/cl/opencl_wrapper.cc
+    ${LITE_DIR}/delegates/gpu/cl/tensor_type_util.cc
+    ${LITE_DIR}/delegates/gpu/common/model.cc
+    ${LITE_DIR}/delegates/gpu/common/model_builder.cc
+    ${LITE_DIR}/delegates/gpu/common/model_transformer.cc
+    ${LITE_DIR}/delegates/gpu/common/status.cc
+    ${LITE_DIR}/delegates/gpu/common/transformations/general_transformations.cc
+    ${LITE_DIR}/delegates/gpu/gl/api2.cc
+)
+
+list(FILTER CORE_CC_ALL_SRCS EXCLUDE REGEX "${LITE_DIR}/.*test")
+set(GPU_DELEGATE gpudelegate)
+add_library(gpudelegate ${GPU_SRCS})
+target_include_directories(
+    ${GPU_DELEGATE} PUBLIC
+    ../../third_party/opencl_headers/OpenCL-Headers
+    ../../third_party/FP16/FP16/include
+)
+target_link_libraries(${GPU_DELEGATE} absl::flags absl::hash absl::strings)
+
+endif() #end of gpu delegate
 
 # ======================= third party library ============================
 add_subdirectory(tools/make/downloads/absl)
