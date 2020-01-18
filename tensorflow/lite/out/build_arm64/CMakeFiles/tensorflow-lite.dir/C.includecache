@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../.././../../tensorflow/lite/c/common.h
+stdbool.h
+-
+stddef.h
+-
+stdint.h
+-
+
+/home/xiong/workspace/tensorflow-master/tensorflow/lite/c/common.c
+tensorflow/lite/c/common.h
+/home/xiong/workspace/tensorflow-master/tensorflow/lite/c/tensorflow/lite/c/common.h
+stdlib.h
+-
+string.h
+-
+
+/home/xiong/workspace/tensorflow-master/tensorflow/lite/tools/make/downloads/fft2d/fftsg.c
+math.h
+-
+pthread.h
+-
+stdio.h
+-
+stdlib.h
+-
+windows.h
+-
+stdio.h
+-
+stdlib.h
+-
+
