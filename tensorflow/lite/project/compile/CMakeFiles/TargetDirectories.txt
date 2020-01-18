@@ -1,4 +1,0 @@
-/home/xiong/workspace/tensorflow-master/tensorflow/lite/project/compile/CMakeFiles/rebuild_cache.dir
-/home/xiong/workspace/tensorflow-master/tensorflow/lite/project/compile/CMakeFiles/edit_cache.dir
-/home/xiong/workspace/tensorflow-master/tensorflow/lite/project/compile/CMakeFiles/tensorflow-lite.dir
-/home/xiong/workspace/tensorflow-master/tensorflow/lite/project/compile/CMakeFiles/minimal.dir

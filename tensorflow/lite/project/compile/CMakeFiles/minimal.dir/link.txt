@@ -1,1 +1,0 @@
-/usr/local/arm/bin/aarch64-linux-gnu-g++   -o0 -fPIC -pthread -std=c++11   CMakeFiles/minimal.dir/examples/minimal/minimal.cc.o  -o minimal libtensorflow-lite.a 
