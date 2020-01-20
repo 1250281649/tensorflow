@@ -2,12 +2,18 @@ cmake_minimum_required(VERSION 3.6)
 project(tensorflow-lite)
 set(LITE_DIR ${PROJECT_SOURCE_DIR})
 
+set(CMAKE_CXX_STANDARD 11)
+
 option(BOARD_TARGET "Select board type" Linux_x64)
 option(BUILD_GPU_DELEGATE "default" off)
+option(BUILD_BENCHMARK "default" off)
 
 if (${BOARD_TARGET}  STREQUAL "ARM64")
     message("-- use aarch64 compile")
     include(project/board_config/arm64.cmake)
+elseif(${BOARD_TARGET}  STREQUAL "Android")
+    message("-- use Android compile")
+    include(project/board_config/android.cmake)
 else()
     message("-- native compile")
     include(project/board_config/linux64.cmake)
@@ -71,31 +77,44 @@ if(${BUILD_GPU_DELEGATE} STREQUAL "on")
 file(GLOB GPU_SRCS
     ${LITE_DIR}/minimal_logging.cc
     ${LITE_DIR}/c/common.cc
-
-    ${LITE_DIR}/*.c
-
+    ${LITE_DIR}/kernel_api.cc
     ${LITE_DIR}/delegates/gpu/delegate.cc
     ${LITE_DIR}/delegates/gpu/api.cc
     ${LITE_DIR}/delegates/gpu/cl/api.cc
-    ${LITE_DIR}/delegates/gpu/cl/opencl_wrapper.cc
-    ${LITE_DIR}/delegates/gpu/cl/tensor_type_util.cc
-    ${LITE_DIR}/delegates/gpu/common/model.cc
-    ${LITE_DIR}/delegates/gpu/common/model_builder.cc
-    ${LITE_DIR}/delegates/gpu/common/model_transformer.cc
-    ${LITE_DIR}/delegates/gpu/common/status.cc
-    ${LITE_DIR}/delegates/gpu/common/transformations/general_transformations.cc
-    ${LITE_DIR}/delegates/gpu/gl/api2.cc
+    ${LITE_DIR}/delegates/gpu/cl/*.cc
+    ${LITE_DIR}/delegates/gpu/cl/kernel/*.cc
+    ${LITE_DIR}/delegates/gpu/cl/selectors/*.cc
+    ${LITE_DIR}/delegates/gpu/common/*.cc
+    ${LITE_DIR}/delegates/gpu/common/transformations/*.cc
+    ${LITE_DIR}/delegates/gpu/common/memory_management/*.cc
+    ${LITE_DIR}/delegates/gpu/gl/*.cc
+    ${LITE_DIR}/delegates/gpu/gl/compiler/*.cc
+    ${LITE_DIR}/delegates/gpu/gl/converters/*.cc
+    ${LITE_DIR}/delegates/gpu/gl/kernels/*.cc
+    ${LITE_DIR}/delegates/gpu/gl/workgroups/*.cc
+    ${LITE_DIR}/tools/evaluation/utils.cc
 )
 
-list(FILTER CORE_CC_ALL_SRCS EXCLUDE REGEX "${LITE_DIR}/.*test")
+list(FILTER GPU_SRCS EXCLUDE REGEX "${LITE_DIR}/.*test")
 set(GPU_DELEGATE gpudelegate)
 add_library(gpudelegate ${GPU_SRCS})
 target_include_directories(
     ${GPU_DELEGATE} PUBLIC
-    ../../third_party/opencl_headers/OpenCL-Headers
-    ../../third_party/FP16/FP16/include
+    ${LITE_DIR}/../../
+    ${LITE_DIR}/../../third_party/opencl_headers/OpenCL-Headers
+    ${LITE_DIR}/../../third_party/FP16/FP16/include
+    ${LITE_DIR}/delegates
+    ${LITE_DIR}/delegates/gpu
+    ${LITE_DIR}/delegates/gpu/cl
+    ${LITE_DIR}/delegates/gpu/gl
+    ${LITE_DIR}/delegates/gpu/common
 )
-target_link_libraries(${GPU_DELEGATE} absl::flags absl::hash absl::strings)
+target_link_libraries(${GPU_DELEGATE} 
+    ${PROJECT_NAME}
+    -lEGL
+    -lGLESv3 
+    absl::flags absl::hash absl::strings
+)
 
 endif() #end of gpu delegate
 
@@ -104,6 +123,7 @@ add_subdirectory(tools/make/downloads/absl)
 
 # ============================== Tools ===================================
 #benchmark
+if(${BUILD_BENCHMARK} STREQUAL "on")
 set(BENCHMARK_LIB_SRCS 
     tools/benchmark/benchmark_model.cc
     tools/benchmark/benchmark_params.cc
@@ -118,8 +138,21 @@ set(BENCHMARK_LIB_SRCS
     profiling/profile_summarizer.cc
 )
 add_library(benchmark-lib ${BENCHMARK_LIB_SRCS})
-add_executable(benchmark tools/benchmark/benchmark_main.cc)
-target_link_libraries(benchmark benchmark-lib ${PROJECT_NAME})
+
+# add_executable(benchmark tools/benchmark/benchmark_main.cc)
+# target_link_libraries(benchmark benchmark-lib ${PROJECT_NAME} ${GPU_DELEGATE})
+# target_include_directories(
+#     benchmark PUBLIC
+#     ${LITE_DIR}/../../
+#     ${LITE_DIR}/../../third_party/opencl_headers/OpenCL-Headers
+#     ${LITE_DIR}/../../third_party/FP16/FP16/include
+#     ${LITE_DIR}/delegates
+#     ${LITE_DIR}/delegates/gpu
+#     ${LITE_DIR}/delegates/gpu/cl
+#     ${LITE_DIR}/delegates/gpu/gl
+#     ${LITE_DIR}/delegates/gpu/common
+# )
+endif()
 
 # ============================= Examples =================================
 add_executable(minimal ${LITE_DIR}/examples/minimal/minimal.cc)
