@@ -9,4 +9,5 @@ add_definitions(-D ABSL_NO_XRAY_ATTRIBUTES=1)
 add_definitions(-D BUILD_TESTING=OFF)
 
 set(BUILD_GPU_DELEGATE  on)
+set(BUILD_WITH_MMAP   on)
 set(BUILD_BENCHMARK on)
