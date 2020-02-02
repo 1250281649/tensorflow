@@ -17,7 +17,7 @@ limitations under the License.
 
 #include <vector>
 
-#include "tensorflow/lite/schema/mutable/schema_generated.h"
+#include "tensorflow/lite/schema/schema_generated.h"
 
 namespace tflite {
 

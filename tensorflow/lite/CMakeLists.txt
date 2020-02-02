@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.6)
 project(tensorflow-lite)
 set(LITE_DIR ${PROJECT_SOURCE_DIR})
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 option(BOARD_TARGET "Select board type" Linux_x64)
 option(BUILD_GPU_DELEGATE "default" off)
 option(BUILD_WITH_MMAP "default" off)
 option(BUILD_BENCHMARK "default" off)
 option(BUILD_GTEST "default" off)
+option(BUILD_TOCO "default" off)
 
 if (${BOARD_TARGET}  STREQUAL "ARM64")
     message("-- use aarch64 compile")
@@ -18,6 +19,7 @@ elseif(${BOARD_TARGET}  STREQUAL "Android")
     include(project/board_config/android.cmake)
 else()
     message("-- native compile")
+    set(CMAKE_CXX_STANDARD 17)
     include(project/board_config/linux64.cmake)
 endif()
 
@@ -97,7 +99,8 @@ file(GLOB ABSL_SRCS
     ${LITE_DIR}/tools/make/downloads/absl/absl/debugging/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/flags/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/hash/*.cc
-    ${LITE_DIR}/tools/make/downloads/absl/absl/hash/internal/*.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/hash/internal/hash.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/hash/internal/city.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/numeric/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/strings/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/strings/internal/*.cc
@@ -111,7 +114,13 @@ file(GLOB ABSL_SRCS
     ${LITE_DIR}/tools/make/downloads/absl/absl/time/internal/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/time/internal/cctz/src/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/types/*.cc
+    #only for toco
+    ${LITE_DIR}/tools/make/downloads/absl/absl/time/internal/cctz/src/*.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/synchronization/internal/graphcycles.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/flags/internal/*.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/debugging/internal/*.cc
 )
+
 list(FILTER ABSL_SRCS EXCLUDE REGEX "${LITE_DIR}/tools/make/downloads/absl/absl/.*test")
 list(FILTER ABSL_SRCS EXCLUDE REGEX "${LITE_DIR}/tools/make/downloads/absl/absl/.*benchmark")
 
@@ -222,6 +231,18 @@ set(MEMORY_MANAGEMENT_SRC
 add_library(memory_management ${MEMORY_MANAGEMENT_SRC} ${ABSL_SRCS})
 target_include_directories(memory_management PUBLIC ${LITE_DIR}/../../third_party/FP16/FP16/include)
 
+
+#TOCO tool
+if(${BUILD_TOCO} STREQUAL "on")
+    add_subdirectory(${LITE_DIR}/../../third_party/protobuf/cmake protobuf)
+    add_subdirectory(${LITE_DIR}/../../third_party/re2 re2)
+    add_subdirectory(${LITE_DIR}/../../third_party/double-conversion double-conversion)
+    add_subdirectory(${LITE_DIR}/../../third_party/nsync nsync)
+    add_subdirectory(${LITE_DIR}/../../third_party/snappy snappy)
+    add_subdirectory(${LITE_DIR}/../../third_party/zlib zlib)
+    add_subdirectory(${LITE_DIR}/../../third_party/jsoncpp jsoncpp)
+    add_subdirectory(toco)
+endif()
 
 # ============================= Examples =================================
 # minimal example

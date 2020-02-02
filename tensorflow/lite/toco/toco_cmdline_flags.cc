@@ -25,6 +25,7 @@ limitations under the License.
 #include "tensorflow/lite/toco/toco_port.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/util/command_line_flags.h"
+#include "absl/flags/internal/flag.h"
 
 namespace toco {
 
