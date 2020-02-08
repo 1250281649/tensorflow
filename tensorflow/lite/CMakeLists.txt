@@ -8,6 +8,7 @@ option(BOARD_TARGET "Select board type" Linux_x64)
 option(BUILD_GPU_DELEGATE "default" off)
 option(BUILD_WITH_MMAP "default" off)
 option(BUILD_BENCHMARK "default" off)
+option(BUILD_GTEST "default" off)
 
 if (${BOARD_TARGET}  STREQUAL "ARM64")
     message("-- use aarch64 compile")
@@ -85,6 +86,7 @@ file(GLOB ABSL_SRCS
     ${LITE_DIR}/tools/make/downloads/absl/absl/base/internal/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/container/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/container/internal/*.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/debugging/internal/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/debugging/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/flags/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/hash/*.cc
@@ -97,8 +99,10 @@ file(GLOB ABSL_SRCS
     ${LITE_DIR}/tools/make/downloads/absl/absl/synchronization/internal/per_thread_sem.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/synchronization/internal/waiter.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/synchronization/internal/create_thread_identity.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/synchronization/internal/graphcycles.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/time/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/time/internal/*.cc
+    ${LITE_DIR}/tools/make/downloads/absl/absl/time/internal/cctz/src/*.cc
     ${LITE_DIR}/tools/make/downloads/absl/absl/types/*.cc
 )
 list(FILTER ABSL_SRCS EXCLUDE REGEX "${LITE_DIR}/tools/make/downloads/absl/absl/.*test")
@@ -194,6 +198,23 @@ target_include_directories(
     ${LITE_DIR}/delegates/gpu/common
 )
 endif()
+
+if(${BUILD_GTEST} STREQUAL "on")
+    add_subdirectory(${LITE_DIR}/tools/make/downloads/googletest)
+    add_subdirectory(${LITE_DIR}/project/gtest)
+endif()
+
+set(MEMORY_MANAGEMENT_SRC
+        ${LITE_DIR}/delegates/gpu/common/memory_management.cc
+        ${LITE_DIR}/delegates/gpu/common/memory_management/greedy_by_size_assignment.cc
+        ${LITE_DIR}/delegates/gpu/common/memory_management/greedy_by_breadth_assignment.cc
+        ${LITE_DIR}/delegates/gpu/common/memory_management/internal.cc
+        ${LITE_DIR}/delegates/gpu/common/memory_management/min_cost_flow_assignment.cc
+        ${LITE_DIR}/delegates/gpu/common/memory_management/types.cc
+)
+add_library(memory_management ${MEMORY_MANAGEMENT_SRC} ${ABSL_SRCS})
+target_include_directories(memory_management PUBLIC ${LITE_DIR}/../../third_party/FP16/FP16/include)
+
 
 # ============================= Examples =================================
 # minimal example
