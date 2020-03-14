@@ -15,3 +15,5 @@ set(memory_management_test_src ../../delegates/gpu/common/memory_management_test
 add_executable(tf_gtest ${graph_info_test_src} ${memory_management_test_src})
 target_link_libraries(tf_gtest tensorflow-lite gtest memory_management)
 
+add_executable(arena_planner_test ../../arena_planner_test.cc)
+target_link_libraries(arena_planner_test tensorflow-lite gtest)

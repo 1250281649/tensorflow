@@ -70,6 +70,13 @@ else()
     )
 endif()
 
+if (${BOARD_TARGET}  STREQUAL "Linux_x64")
+    set(CORE_CC_ALL_SRCS ${CORE_CC_ALL_SRCS} 
+        ${LITE_DIR}/../core/platform/default/logging.cc
+        ${LITE_DIR}/../core/platform/default/env_time.cc
+    )
+endif()
+
 list(FILTER CORE_CC_ALL_SRCS EXCLUDE REGEX "${LITE_DIR}/.*test")
 list(FILTER CORE_CC_ALL_SRCS EXCLUDE REGEX "${LITE_DIR}/.*benchmark")
 list(FILTER CORE_CC_ALL_SRCS EXCLUDE REGEX "${LITE_DIR}/.*synchronization")
@@ -231,3 +238,5 @@ add_executable(label_image
 target_link_libraries(label_image ${PROJECT_NAME} ${GPU_DELEGATE})
 
 endif()
+
+add_subdirectory(${LITE_DIR}/micro)
